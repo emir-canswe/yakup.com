@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yedigen Spiral — 2B & 3B</title>
+<title>Yedigen Spiral — İnceleme Modu</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital@0;1&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -12,52 +12,68 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-height:100vh;overflow:hidden;
   font-family:'Crimson Text',serif;
-  cursor: grab;
 }
-body:active{cursor:grabbing;}
 .bg{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#1a1035 0%,#07071200 65%);z-index:0;pointer-events:none;}
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
-header{
-  z-index:10;text-align:center;margin-bottom:1rem;
-  pointer-events:none;
-}
-header h1{
-  font-family:'Cinzel',serif;color:#c8a96e;font-size:1.05rem;
-  letter-spacing:.35em;text-shadow:0 0 24px rgba(200,169,110,.55);
-}
-header p{color:#7766aa;font-size:.8rem;letter-spacing:.12em;font-style:italic;margin-top:.25rem;}
+header{z-index:10;text-align:center;margin-bottom:.7rem;pointer-events:none;user-select:none;}
+header h1{font-family:'Cinzel',serif;color:#c8a96e;font-size:1rem;letter-spacing:.35em;text-shadow:0 0 24px rgba(200,169,110,.55);}
+header p{color:#7766aa;font-size:.72rem;letter-spacing:.12em;font-style:italic;margin-top:.2rem;}
 
-.stage{
-  z-index:10;display:flex;gap:2.5rem;align-items:flex-start;
-  pointer-events:none;
+.tabs{
+  z-index:10;display:flex;margin-bottom:.7rem;border-radius:3px;overflow:hidden;
+}
+.tab{
+  font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.22em;
+  padding:.38rem 1.1rem;color:#7766aa;cursor:pointer;
+  border:1px solid #332266;background:transparent;
+  transition:all .22s;user-select:none;
+}
+.tab.active{background:rgba(85,51,170,.45);color:#c8a96e;border-color:#7744cc;}
+.tab:hover:not(.active){background:rgba(85,51,170,.15);color:#aa88ee;}
+
+.stage{z-index:10;position:relative;}
+canvas{border-radius:6px;display:block;}
+#c2d{filter:drop-shadow(0 0 28px rgba(120,80,220,.55));cursor:grab;}
+#c3d{filter:drop-shadow(0 0 28px rgba(80,160,220,.55));cursor:grab;}
+#c2d:active,#c3d:active{cursor:grabbing;}
+
+/* HUD overlay */
+.hud{
+  position:absolute;top:10px;right:10px;
+  z-index:20;display:flex;flex-direction:column;gap:.3rem;
+  pointer-events:none;user-select:none;
+}
+.hud-item{
+  font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.15em;
+  color:#8866cc;padding:.2rem .5rem;
+  border:1px solid #33224466;border-radius:2px;
+  background:rgba(7,7,18,.65);text-align:right;
 }
 
-.panel{display:flex;flex-direction:column;align-items:center;gap:.5rem;}
-.panel-label{
-  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.3em;
-  color:#8866cc;text-transform:uppercase;
+/* zoom ring hint */
+.zoom-ring{
+  position:absolute;bottom:10px;left:10px;
+  z-index:20;pointer-events:none;user-select:none;
+  font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.12em;
+  color:#443366;
 }
 
-canvas{border-radius:4px; pointer-events:auto;}
-#c2d{filter:drop-shadow(0 0 22px rgba(120,80,220,.45));}
-#c3d{filter:drop-shadow(0 0 22px rgba(80,160,220,.45));}
-
-.controls{
-  z-index:10;display:flex;gap:1rem;margin-top:1.1rem;
-}
+.controls{z-index:10;display:flex;gap:.7rem;margin-top:.8rem;align-items:center;}
 button{
   font-family:'Cinzel',serif;background:transparent;
   border:1px solid #5533aa;color:#c8a96e;
-  padding:.45rem 1.3rem;font-size:.7rem;letter-spacing:.2em;cursor:pointer;
-  transition:all .3s;
+  padding:.38rem 1rem;font-size:.62rem;letter-spacing:.18em;cursor:pointer;
+  transition:all .3s;border-radius:2px;
 }
-button:hover{background:rgba(85,51,170,.3);border-color:#c8a96e;box-shadow:0 0 14px rgba(200,169,110,.25);}
+button:hover{background:rgba(85,51,170,.3);border-color:#c8a96e;box-shadow:0 0 12px rgba(200,169,110,.22);}
+.sep{color:#332255;font-size:.8rem;user-select:none;}
+.zoom-label{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.15em;color:#7766aa;min-width:52px;text-align:center;}
 
 .formula{
-  z-index:10;color:#554488;font-size:.75rem;font-style:italic;
-  margin-top:.7rem;letter-spacing:.05em;text-align:center;
-  pointer-events:none;
+  z-index:10;color:#3a2a55;font-size:.68rem;font-style:italic;
+  margin-top:.5rem;letter-spacing:.05em;text-align:center;
+  pointer-events:none;user-select:none;
 }
 </style>
 </head>
@@ -67,141 +83,156 @@ button:hover{background:rgba(85,51,170,.3);border-color:#c8a96e;box-shadow:0 0 1
 
 <header>
   <h1>Yedigen Spiral Daralma Modeli</h1>
-  <p>2 Boyutlu &nbsp;·&nbsp; 3 Boyutlu &nbsp;·&nbsp; Etkileşimli</p>
+  <p>Sürükle: Döndür &nbsp;·&nbsp; Tekerlek / Sıkıştır: Yakınlaştır &nbsp;·&nbsp; Shift+Sürükle: Eğ</p>
 </header>
 
-<div class="stage">
-  <div class="panel">
-    <div class="panel-label">2 Boyutlu</div>
-    <canvas id="c2d" width="380" height="380"></canvas>
-  </div>
-  <div class="panel">
-    <div class="panel-label">3 Boyutlu</div>
-    <canvas id="c3d" width="380" height="380"></canvas>
-  </div>
+<div class="tabs">
+  <div class="tab active" id="tab2d">2 Boyutlu</div>
+  <div class="tab" id="tab3d">3 Boyutlu</div>
+  <div class="tab" id="tabBoth">İkisi Birden</div>
 </div>
 
-<div class="formula">Her yeni yedigenin alanı öncekinin 1/7'si &nbsp;|&nbsp; Çevirmek için ekranda sürükleyin</div>
+<div class="stage" id="stage">
+  <canvas id="c2d" width="580" height="580"></canvas>
+  <canvas id="c3d" width="580" height="580" style="display:none"></canvas>
+  <div class="hud">
+    <div class="hud-item" id="hudZoom">ZOOM 1.00×</div>
+    <div class="hud-item" id="hudRot">ROT 0°</div>
+    <div class="hud-item" id="hudTilt">TİLT 0°</div>
+  </div>
+  <div class="zoom-ring" id="zoomRing">scroll → zoom</div>
+</div>
 
 <div class="controls">
   <button id="btnPlay">⏸ DURDUR</button>
   <button id="btnReset">↺ TEKRAR</button>
+  <div class="sep">|</div>
+  <button id="btnZoomOut">－</button>
+  <div class="zoom-label" id="zoomLabel">1.0×</div>
+  <button id="btnZoomIn">＋</button>
+  <div class="sep">|</div>
+  <button id="btnResetView">⊙ GÖRÜNÜM</button>
 </div>
+<div class="formula">Her yedigenin alanı öncekinin 1/7'si &nbsp;·&nbsp; SCALE = 1/√7</div>
 
 <script>
 /* ── Stars ── */
 (()=>{
   const sc=document.getElementById('stars');
-  sc.width=window.innerWidth;sc.height=window.innerHeight;
+  sc.width=window.innerWidth; sc.height=window.innerHeight;
   const sx=sc.getContext('2d');
-  for(let i=0;i<140;i++){
-    sx.beginPath();sx.arc(Math.random()*sc.width,Math.random()*sc.height,Math.random()*1.1,0,Math.PI*2);
-    sx.fillStyle=`rgba(255,255,255,${Math.random()*.45+.08})`;sx.fill();
+  for(let i=0;i<170;i++){
+    sx.beginPath();
+    sx.arc(Math.random()*sc.width,Math.random()*sc.height,Math.random()*1.3,0,Math.PI*2);
+    sx.fillStyle=`rgba(255,255,255,${Math.random()*.5+.06})`;
+    sx.fill();
   }
 })();
 
-/* ── Shared constants ── */
+/* ── Constants ── */
 const COLORS=[
-  {fill:'rgba(130,70,210,.88)', stroke:'#a060e8', light:'#c090ff'},
-  {fill:'rgba(50, 90,210,.88)', stroke:'#5080f0', light:'#80b0ff'},
-  {fill:'rgba(30,155,200,.88)', stroke:'#30b8e8', light:'#60d8ff'},
-  {fill:'rgba(40,175, 90,.88)', stroke:'#40cc70', light:'#70ee99'},
-  {fill:'rgba(195,200, 40,.88)',stroke:'#d8d850', light:'#f0f070'},
-  {fill:'rgba(220,120, 30,.88)',stroke:'#f09030', light:'#ffb850'},
-  {fill:'rgba(210, 40, 55,.88)',stroke:'#f03050', light:'#ff6070'},
+  {fill:'rgba(130,70,210,.88)', stroke:'#a060e8'},
+  {fill:'rgba(50,90,210,.88)',  stroke:'#5080f0'},
+  {fill:'rgba(30,155,200,.88)', stroke:'#30b8e8'},
+  {fill:'rgba(40,175,90,.88)',  stroke:'#40cc70'},
+  {fill:'rgba(195,200,40,.88)', stroke:'#d8d850'},
+  {fill:'rgba(220,120,30,.88)', stroke:'#f09030'},
+  {fill:'rgba(210,40,55,.88)',  stroke:'#f03050'},
 ];
 const N=7, SCALE=1/Math.sqrt(7), ROT=Math.PI/7;
 const AD=65, HOLD=25;
 const TOTAL=(N*(AD+HOLD))+80;
 
-let t=0, playing=true, raf;
-let globalRot = 0, userRot = 0;
-let isDragging = false, lastX = 0;
+let t=0, playing=true, globalRot=0;
 
-window.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; });
-window.addEventListener('mousemove', e => { 
-  if(isDragging) { 
-    userRot += (e.clientX - lastX) * 0.01; 
-    lastX = e.clientX; 
-  }
-});
-window.addEventListener('mouseup', () => { isDragging = false; });
-window.addEventListener('touchstart', e => { isDragging = true; lastX = e.touches[0].clientX; });
-window.addEventListener('touchmove', e => { 
-  if(isDragging) { 
-    userRot += (e.touches[0].clientX - lastX) * 0.01; 
-    lastX = e.touches[0].clientX; 
-  }
-});
-window.addEventListener('touchend', () => { isDragging = false; });
+/* ── View state ── */
+let zoom=1;
+const ZOOM_MIN=0.25, ZOOM_MAX=8;
+let rotY=0;   // horizontal (all modes)
+let rotX=0;   // vertical tilt (3D + 2D shift-drag)
+
+/* ── Drag state ── */
+let isDragging=false, lastX=0, lastY=0;
+let pinchDist=null;
+
+/* ── Mode ── */
+let mode='2d';
 
 function ease(x){return 1-Math.pow(1-x,3);}
 
 /* ══════════════════════════════
-   2D CANVAS
+   2D
 ══════════════════════════════ */
 const c2=document.getElementById('c2d');
 const x2=c2.getContext('2d');
-const CX2=c2.width/2, CY2=c2.height/2, R2=165;
 
 function hept2(cx,cy,r,rot){
   x2.beginPath();
   for(let i=0;i<7;i++){
     const a=rot+(2*Math.PI*i/7)-Math.PI/2;
-    i===0?x2.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a))
-         :x2.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    i===0 ? x2.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a))
+           : x2.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
   }
   x2.closePath();
 }
 
 function draw2d(){
-  x2.clearRect(0,0,c2.width,c2.height);
-  const g=x2.createRadialGradient(CX2,CY2,0,CX2,CY2,R2+10);
-  g.addColorStop(0,'rgba(70,30,150,.18)');g.addColorStop(1,'rgba(0,0,0,0)');
-  x2.fillStyle=g;x2.fillRect(0,0,c2.width,c2.height);
+  const W=c2.width, H=c2.height, CX=W/2, CY=H/2;
+  const R=Math.min(W,H)*0.43 * zoom;
+  x2.clearRect(0,0,W,H);
+  const g=x2.createRadialGradient(CX,CY,0,CX,CY,R+20);
+  g.addColorStop(0,'rgba(70,30,150,.2)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  x2.fillStyle=g; x2.fillRect(0,0,W,H);
 
   for(let i=0;i<N;i++){
     const sf=i*(AD+HOLD);
     const p=Math.min(1,Math.max(0,(t-sf)/AD));
-    if(p<=0)continue;
+    if(p<=0) continue;
     const ep=ease(p);
-    const r=R2*Math.pow(SCALE,i)*ep;
-    const rot=ROT*i + globalRot + userRot;
+    const r=R*Math.pow(SCALE,i)*ep;
+    const rot=ROT*i + globalRot + rotY;
     x2.save();
     x2.globalAlpha=0.15+ep*.85;
-    x2.shadowColor=COLORS[i].stroke;x2.shadowBlur=16*ep;
-    hept2(CX2,CY2,r,rot);
-    x2.fillStyle=COLORS[i].fill;x2.fill();
-    x2.strokeStyle=COLORS[i].stroke;x2.lineWidth=1.8;x2.stroke();
+    x2.shadowColor=COLORS[i].stroke; x2.shadowBlur=18*ep;
+    hept2(CX,CY,r,rot);
+    x2.fillStyle=COLORS[i].fill; x2.fill();
+    x2.strokeStyle=COLORS[i].stroke; x2.lineWidth=1.8; x2.stroke();
     x2.restore();
   }
   const top=Math.min(N-1,Math.floor(t/(AD+HOLD)));
   if(t>10){
-    const rr=R2*Math.pow(SCALE,top);
-    x2.save();x2.globalAlpha=.18+.1*Math.sin(t*.1);
-    x2.shadowColor=COLORS[top].stroke;x2.shadowBlur=20;
-    hept2(CX2,CY2,rr,ROT*top + globalRot + userRot + t*.006);
-    x2.strokeStyle=COLORS[top].stroke;x2.lineWidth=1;x2.stroke();
+    const rr=R*Math.pow(SCALE,top);
+    x2.save(); x2.globalAlpha=.18+.1*Math.sin(t*.1);
+    x2.shadowColor=COLORS[top].stroke; x2.shadowBlur=24;
+    hept2(CX,CY,rr,ROT*top + globalRot + rotY + t*.006);
+    x2.strokeStyle=COLORS[top].stroke; x2.lineWidth=1; x2.stroke();
     x2.restore();
   }
 }
 
 /* ══════════════════════════════
-   3D CANVAS
+   3D  — Full orbit projection
 ══════════════════════════════ */
 const c3=document.getElementById('c3d');
 const x3=c3.getContext('2d');
-const CX3=c3.width/2, CY3=c3.height/2+30, R3=155;
 
-const ISO_ANGLE=Math.PI/6;
-
-function iso(x,y,z){
-  const px = x*Math.cos(ISO_ANGLE) - y*Math.cos(ISO_ANGLE);
-  const py = x*Math.sin(ISO_ANGLE) + y*Math.sin(ISO_ANGLE) - z;
-  return [CX3+px, CY3+py];
+function project(px,py,pz, CX,CY){
+  // 1. Rotate around Y axis (horizontal spin)
+  const cy=Math.cos(rotY), sy=Math.sin(rotY);
+  const x1 =  px*cy + py*sy;
+  const y1 = -px*sy + py*cy;
+  const z1 =  pz;
+  // 2. Rotate around X axis (tilt up/down)
+  const cx=Math.cos(rotX), sx2=Math.sin(rotX);
+  const y2 = y1*cx - z1*sx2;
+  const z2 = y1*sx2 + z1*cx;
+  // 3. Perspective
+  const fov=600;
+  const sc=fov/(fov + z2*0.25);
+  return [CX + x1*sc*zoom, CY - y2*sc*zoom];
 }
 
-function heptPts(r,rot,z){
+function heptPts3(r,rot,z){
   const pts=[];
   for(let i=0;i<7;i++){
     const a=rot+(2*Math.PI*i/7)-Math.PI/2;
@@ -210,92 +241,172 @@ function heptPts(r,rot,z){
   return pts;
 }
 
-function poly3(pts,fillStyle,strokeStyle,alpha=1){
+function poly3d(pts,fill,stroke,alpha,CX,CY){
   x3.beginPath();
-  const [px0,py0]=iso(...pts[0]);
+  const [px0,py0]=project(...pts[0],CX,CY);
   x3.moveTo(px0,py0);
-  for(let i=1;i<pts.length;i++){const [px,py]=iso(...pts[i]);x3.lineTo(px,py);}
+  for(let i=1;i<pts.length;i++){
+    const [px,py]=project(...pts[i],CX,CY);
+    x3.lineTo(px,py);
+  }
   x3.closePath();
   x3.globalAlpha=alpha;
-  if(fillStyle){x3.fillStyle=fillStyle;x3.fill();}
-  if(strokeStyle){x3.strokeStyle=strokeStyle;x3.lineWidth=1.2;x3.stroke();}
+  if(fill){x3.fillStyle=fill;x3.fill();}
+  if(stroke){x3.strokeStyle=stroke;x3.lineWidth=1.3;x3.stroke();}
 }
 
-function sideFace(p1,p2,bottomZ,fillStyle,alpha){
-  const pts=[
+function side3d(p1,p2,bz,fill,alpha,CX,CY){
+  poly3d([
     [p1[0],p1[1],p1[2]],
     [p2[0],p2[1],p2[2]],
-    [p2[0],p2[1],bottomZ],
-    [p1[0],p1[1],bottomZ],
-  ];
-  poly3(pts,fillStyle,null,alpha);
+    [p2[0],p2[1],bz],
+    [p1[0],p1[1],bz],
+  ],fill,null,alpha,CX,CY);
 }
 
 function hexToRgba(hex,a){
-  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${a})`;
 }
 
 const PRISM_H=[90,72,56,42,30,20,12];
 
 function draw3d(){
-  x3.clearRect(0,0,c3.width,c3.height);
-  const g=x3.createRadialGradient(CX3,CY3+20,0,CX3,CY3+20,R3+20);
-  g.addColorStop(0,'rgba(30,60,120,.2)');g.addColorStop(1,'rgba(0,0,0,0)');
-  x3.fillStyle=g;x3.fillRect(0,0,c3.width,c3.height);
+  const W=c3.width,H=c3.height,CX=W/2,CY=H/2+15;
+  const R=Math.min(W,H)*0.40;
+  x3.clearRect(0,0,W,H);
+  const g=x3.createRadialGradient(CX,CY,0,CX,CY,R+30);
+  g.addColorStop(0,'rgba(30,60,120,.22)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  x3.fillStyle=g; x3.fillRect(0,0,W,H);
 
   for(let i=0;i<N;i++){
     const sf=i*(AD+HOLD);
     const p=Math.min(1,Math.max(0,(t-sf)/AD));
-    if(p<=0)continue;
+    if(p<=0) continue;
     const ep=ease(p);
-
-    const r=R3*Math.pow(SCALE,i);
-    const rot=ROT*i + globalRot + userRot;
+    const r=R*Math.pow(SCALE,i);
+    const rot=ROT*i + globalRot;
     const h=PRISM_H[i]*ep;
-    const topZ=h;
-    const botZ=0;
-
-    const topPts=heptPts(r*ep,rot,topZ);
-
+    const topPts=heptPts3(r*ep,rot,h);
     const col=COLORS[i];
     const alpha=0.15+ep*.82;
-
     x3.save();
-    x3.shadowColor=col.stroke;x3.shadowBlur=10*ep;
+    x3.shadowColor=col.stroke; x3.shadowBlur=12*ep;
+    // sides
     for(let k=0;k<7;k++){
       const k2=(k+1)%7;
-      const midA=rot+(2*Math.PI*(k+.5)/7)-Math.PI/2;
-      if(Math.sin(midA+Math.PI/4)>-0.1){
-        sideFace(topPts[k],topPts[k2],botZ,hexToRgba(col.stroke,.55*ep),alpha*.9);
-      }
+      side3d(topPts[k],topPts[k2],0,hexToRgba(col.stroke,.58*ep),alpha*.88,CX,CY);
     }
-    poly3(topPts, col.fill, col.stroke, alpha);
+    // top face
+    poly3d(topPts,col.fill,col.stroke,alpha,CX,CY);
     x3.restore();
   }
 }
 
-/* ── Main loop ── */
-function loop(){
-  if(playing){
-    t++;
-    if(t>TOTAL)t=TOTAL;
-    globalRot += 0.005;
-  }
-  draw2d();
-  draw3d();
-  raf=requestAnimationFrame(loop);
+/* ══════════════════════════════
+   HUD
+══════════════════════════════ */
+function updateHUD(){
+  document.getElementById('hudZoom').textContent=`ZOOM ${zoom.toFixed(2)}×`;
+  const deg=r=>Math.round(((r*180/Math.PI)%360+360)%360);
+  document.getElementById('hudRot').textContent=`ROT ${deg(rotY)}°`;
+  document.getElementById('hudTilt').textContent=`TİLT ${Math.round(rotX*180/Math.PI)}°`;
+  document.getElementById('zoomLabel').textContent=`${zoom.toFixed(1)}×`;
 }
 
+/* ══════════════════════════════
+   Pointer / wheel events
+══════════════════════════════ */
+window.addEventListener('mousedown',e=>{isDragging=true;lastX=e.clientX;lastY=e.clientY;});
+window.addEventListener('mousemove',e=>{
+  if(!isDragging) return;
+  const dx=e.clientX-lastX, dy=e.clientY-lastY;
+  lastX=e.clientX; lastY=e.clientY;
+  rotY += dx*0.013;
+  if(e.shiftKey || mode==='3d'){
+    rotX=Math.max(-Math.PI/2,Math.min(Math.PI/2, rotX+dy*0.013));
+  }
+  updateHUD();
+});
+window.addEventListener('mouseup',()=>isDragging=false);
+
+window.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const factor = e.deltaY>0 ? 0.92 : 1.09;
+  zoom=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,zoom*factor));
+  updateHUD();
+},{passive:false});
+
+// Touch
+window.addEventListener('touchstart',e=>{
+  if(e.touches.length===1){
+    isDragging=true; lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; pinchDist=null;
+  } else if(e.touches.length===2){
+    isDragging=false;
+    pinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+  }
+},{passive:true});
+
+window.addEventListener('touchmove',e=>{
+  if(e.touches.length===1 && isDragging){
+    const dx=e.touches[0].clientX-lastX, dy=e.touches[0].clientY-lastY;
+    lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
+    rotY+=dx*0.013;
+    rotX=Math.max(-Math.PI/2,Math.min(Math.PI/2,rotX+dy*0.013));
+    updateHUD();
+  } else if(e.touches.length===2 && pinchDist!==null){
+    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    zoom=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,zoom*(d/pinchDist)));
+    pinchDist=d; updateHUD();
+  }
+},{passive:true});
+window.addEventListener('touchend',()=>{isDragging=false;pinchDist=null;});
+
+/* ── Buttons ── */
+document.getElementById('btnZoomIn').addEventListener('click',()=>{zoom=Math.min(ZOOM_MAX,zoom*1.3);updateHUD();});
+document.getElementById('btnZoomOut').addEventListener('click',()=>{zoom=Math.max(ZOOM_MIN,zoom/1.3);updateHUD();});
+document.getElementById('btnResetView').addEventListener('click',()=>{zoom=1;rotY=0;rotX=0;updateHUD();});
 document.getElementById('btnPlay').addEventListener('click',function(){
-  playing=!playing;
-  this.textContent=playing?'⏸ DURDUR':'▶ DEVAM';
+  playing=!playing; this.textContent=playing?'⏸ DURDUR':'▶ DEVAM';
 });
 document.getElementById('btnReset').addEventListener('click',function(){
-  t=0;playing=true;globalRot=0;userRot=0;
+  t=0;playing=true;globalRot=0;
   document.getElementById('btnPlay').textContent='⏸ DURDUR';
 });
 
+/* ── Tabs ── */
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');
+  const stage=document.getElementById('stage');
+  if(m==='both'){
+    c2.width=390;c2.height=390;c3.width=390;c3.height=390;
+    c2.style.display='inline-block';c3.style.display='inline-block';
+    stage.style.display='flex';stage.style.gap='1.2rem';
+  } else {
+    c2.width=580;c2.height=580;c3.width=580;c3.height=580;
+    stage.style.display='block';
+    c2.style.display=m==='2d'?'block':'none';
+    c3.style.display=m==='3d'?'block':'none';
+  }
+}
+document.getElementById('tab2d').addEventListener('click',()=>setMode('2d'));
+document.getElementById('tab3d').addEventListener('click',()=>setMode('3d'));
+document.getElementById('tabBoth').addEventListener('click',()=>setMode('both'));
+
+/* ── Loop ── */
+function loop(){
+  if(playing){
+    t++; if(t>TOTAL)t=TOTAL;
+    globalRot+=0.005;
+  }
+  if(mode==='2d'||mode==='both') draw2d();
+  if(mode==='3d'||mode==='both') draw3d();
+  requestAnimationFrame(loop);
+}
+
+updateHUD();
 loop();
 </script>
 </body>
