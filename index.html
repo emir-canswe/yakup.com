@@ -10,7 +10,7 @@
 body{
   background:#070712;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:100vh;overflow:hidden;
+  height:100vh;overflow:hidden;padding:.3rem 0;
   font-family:'Crimson Text',serif;
 }
 .bg{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#1a1035 0%,#07071200 65%);z-index:0;pointer-events:none;}
@@ -93,8 +93,8 @@ button:hover{background:rgba(85,51,170,.3);border-color:#c8a96e;box-shadow:0 0 1
 </div>
 
 <div class="stage" id="stage">
-  <canvas id="c2d" width="580" height="580"></canvas>
-  <canvas id="c3d" width="580" height="580" style="display:none"></canvas>
+  <canvas id="c2d" width="480" height="480"></canvas>
+  <canvas id="c3d" width="480" height="480" style="display:none"></canvas>
   <div class="hud">
     <div class="hud-item" id="hudZoom">ZOOM 1.00×</div>
     <div class="hud-item" id="hudRot">ROT 0°</div>
@@ -419,12 +419,15 @@ function setMode(m){
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');
   const stage=document.getElementById('stage');
+  const avail = Math.min(window.innerHeight - 195, window.innerWidth - 40);
   if(m==='both'){
-    c2.width=390;c2.height=390;c3.width=390;c3.height=390;
+    const s = Math.floor(Math.min(avail*0.48, (window.innerWidth-80)/2));
+    c2.width=s;c2.height=s;c3.width=s;c3.height=s;
     c2.style.display='inline-block';c3.style.display='inline-block';
-    stage.style.display='flex';stage.style.gap='1.2rem';
+    stage.style.display='flex';stage.style.gap='1rem';
   } else {
-    c2.width=580;c2.height=580;c3.width=580;c3.height=580;
+    const s = Math.floor(Math.min(avail, 560));
+    c2.width=s;c2.height=s;c3.width=s;c3.height=s;
     stage.style.display='block';
     c2.style.display=m==='2d'?'block':'none';
     c3.style.display=m==='3d'?'block':'none';
@@ -445,6 +448,7 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
+setMode('2d');
 updateHUD();
 loop();
 </script>
